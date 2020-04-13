@@ -1,17 +1,27 @@
 import { User, Proposal, Governance, Vote } from "../../generated/schema";
-import { Address, EthereumEvent, BigInt, log } from "@graphprotocol/graph-ts";
+import { Address, EthereumEvent, BigInt, Bytes, log } from "@graphprotocol/graph-ts";
 import { DEFAULT_DECIMALS, toDecimal } from "./decimals";
-import { ZERO_ADDRESS, BIGINT_ZERO, BIGDECIMAL_ZERO } from "./constants";
+import {
+  ZERO_ADDRESS,
+  BIGINT_ZERO,
+  BIGINT_ONE,
+  BIGDECIMAL_ZERO
+} from "./constants";
 
 export function getOrCreateUser(
   id: String,
   createIfNotFound: boolean = true,
-  save: boolean = false
+  save: boolean = true
 ): User {
   let user = User.load(id);
 
   if (user == null && createIfNotFound) {
     user = new User(id);
+
+    let governance = getGovernanceEntity();
+
+    governance.users = governance.users + BIGINT_ONE;
+    governance.save();
 
     if (save) {
       user.save();
@@ -48,6 +58,11 @@ export function getOrCreateProposal(
 
   if (proposal == null && createIfNotFound) {
     proposal = new Proposal(id);
+
+    let governance = getGovernanceEntity();
+
+    governance.proposals = governance.proposals + BIGINT_ONE;
+    governance.save();
 
     if (save) {
       proposal.save();

@@ -1,3 +1,11 @@
+enum ProposalStatus {
+  PENDING
+  ACTIVE
+  CANCELLED
+  QUEUED
+  EXECUTED
+}
+
 type User @entity {
   "A user is any address that uses the protocol, id is the blockchain address of said user"
   id: ID!
@@ -25,6 +33,10 @@ type Proposal @entity {
   endBlock: BigInt!
 
   description: String!
+
+  status: ProposalStatus!
+
+  executionETA: BigInt
 
   votes: [Vote!]! @derivedFrom(field: "proposal")
 }
