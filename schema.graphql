@@ -1,0 +1,54 @@
+type User @entity {
+  "A user is any address that uses the protocol, id is the blockchain address of said user"
+  id: ID!
+
+  votes: [Vote!]! @derivedFrom(field: "user")
+
+  proposals: [Proposal!]! @derivedFrom(field: "proposer")
+}
+
+type Proposal @entity {
+  id: ID!
+
+  proposer: User!
+
+  targets: [Bytes!]
+
+  values: [BigInt!]
+
+  signatures: [String!]
+
+  calldatas: [Bytes!]
+
+  startBlock: BigInt!
+
+  endBlock: BigInt!
+
+  description: String!
+
+  votes: [Vote!]! @derivedFrom(field: "proposal")
+}
+
+type Vote @entity {
+  "User ID + Proposal ID"
+  id: ID!
+
+  support: Boolean!
+
+  votes: BigInt!
+
+  user: User!
+
+  proposal: Proposal!
+}
+
+type Governance @entity {
+  "Unique entity used to keep track of common aggregated data"
+  id: ID!
+
+  proposals: BigInt!
+
+  users: BigInt!
+
+  proposalsQueued: BigInt!
+}
