@@ -94,7 +94,7 @@ export function handleVoteCast(event: VoteCast): void {
     .concat("-")
     .concat(event.params.proposalId.toString());
   let vote = getOrCreateVote(voteId);
-  let voter = getOrCreateUser(event.params.voter.toHexString())
+  let voter = getOrCreateUser(event.params.voter.toHexString());
 
   vote.proposal = proposal.id;
   vote.user = voter.id;
@@ -102,4 +102,9 @@ export function handleVoteCast(event: VoteCast): void {
   vote.support = event.params.support;
 
   vote.save();
+
+  if (proposal.status == STATUS_PENDING) {
+    proposal.status = STATUS_ACTIVE;
+    proposal.save();
+  }
 }
