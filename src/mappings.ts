@@ -5,7 +5,7 @@ import {
   ProposalQueued,
   ProposalExecuted,
   VoteCast
-} from "../generated/GovernorAlpha/GovernorAlpha";
+} from "../generated/GovernorAlphaRopsten/GovernorAlphaRopsten";
 import {
   getOrCreateUser,
   getOrCreateProposal,
@@ -35,11 +35,10 @@ export function handleProposalCreated(event: ProposalCreated): void {
   proposal.values = event.params.values;
   proposal.signatures = event.params.signatures;
   proposal.calldatas = event.params.calldatas;
-  proposal.startBlock = event.params.startBlock;
-  proposal.endBlock = event.params.endBlock;
+  // proposal.startBlock = event.params.startBlock;
+  // proposal.endBlock = event.params.endBlock;
   proposal.description = event.params.description;
-  proposal.status =
-    event.block.number >= proposal.startBlock ? STATUS_ACTIVE : STATUS_PENDING;
+  proposal.status = STATUS_PENDING;
 
   proposal.save();
 }

@@ -28,9 +28,9 @@ type Proposal @entity {
 
   calldatas: [Bytes!]
 
-  startBlock: BigInt!
+  startBlock: BigInt
 
-  endBlock: BigInt!
+  endBlock: BigInt
 
   description: String!
 

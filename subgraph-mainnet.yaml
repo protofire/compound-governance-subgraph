@@ -5,12 +5,12 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: GovernorAlphaRopsten
-    network: ropsten
+    name: GovernorAlpha
+    network: mainnet
     source:
-      address: "0xc5bfed3bb38a3c4078d4f130f57ca4c560551d45"
-      abi: GovernorAlphaRopsten
-      startBlock: 7404761
+      address: "0xc0da01a04c3f3e0be433606045bb7017a7323e38"
+      abi: GovernorAlpha
+      startBlock: 9601459
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3
@@ -19,10 +19,10 @@ dataSources:
       entities:
         - User
       abis:
-        - name: GovernorAlphaRopsten
-          file: ./abis/GovernorAlphaRopsten.json
+        - name: GovernorAlpha
+          file: ./abis/GovernorAlpha.json
       eventHandlers:
-        - event: ProposalCreated(uint256,address,address[],uint256[],string[],bytes[],string)
+        - event: ProposalCreated(uint256,address,address[],uint256[],string[],bytes[],uint256,uint256,string)
           handler: handleProposalCreated
         - event: ProposalCanceled(uint256)
           handler: handleProposalCanceled
