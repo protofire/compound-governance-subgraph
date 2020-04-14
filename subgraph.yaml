@@ -10,14 +10,15 @@ dataSources:
     source:
       address: "0xc0da01a04c3f3e0be433606045bb7017a7323e38"
       abi: GovernorAlpha
-      startBlock: 7137983
+      startBlock: 9601459
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3
       language: wasm/assemblyscript
       file: ./src/mappings.ts
       entities:
-        - User
+        - Delegate
+        - TokenHolder
         - Proposal
         - Vote
         - Governance
@@ -41,14 +42,15 @@ dataSources:
     source:
       address: "0xc00e94cb662c3520282e6f5717214004a7f26888"
       abi: CompoundToken
-      startBlock: 7137983
+      startBlock: 9601359
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3
       language: wasm/assemblyscript
       file: ./src/mappings.ts
       entities:
-        - User
+        - Delegate
+        - TokenHolder
       abis:
         - name: CompoundToken
           file: ./abis/CompoundToken.json

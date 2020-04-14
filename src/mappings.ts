@@ -12,7 +12,8 @@ import {
   Transfer
 } from "../generated/CompoundToken/CompoundToken";
 import {
-  getOrCreateUser,
+  getOrCreateTokenHolder,
+  getOrCreateDelegate,
   getOrCreateProposal,
   getOrCreateVote,
   getGovernanceEntity
@@ -20,6 +21,7 @@ import {
 import {
   ZERO_ADDRESS,
   BIGINT_ONE,
+  BIGINT_ZERO,
   STATUS_ACTIVE,
   STATUS_QUEUED,
   STATUS_PENDING,
@@ -33,7 +35,16 @@ import { toDecimal } from "./utils/decimals";
 
 export function handleProposalCreated(event: ProposalCreated): void {
   let proposal = getOrCreateProposal(event.params.id.toString());
-  let proposer = getOrCreateUser(event.params.proposer.toHexString());
+  let proposer = getOrCreateDelegate(
+    event.params.proposer.toHexString(),
+    false
+  );
+
+  if (proposer == null) {
+    log.error("Delegate {} not found on ProposalCreated", [
+      event.params.proposer.toHexString()
+    ]);
+  }
 
   proposal.proposer = proposer.id;
   proposal.targets = event.params.targets as Bytes[];
@@ -99,10 +110,16 @@ export function handleVoteCast(event: VoteCast): void {
     .concat("-")
     .concat(event.params.proposalId.toString());
   let vote = getOrCreateVote(voteId);
-  let voter = getOrCreateUser(event.params.voter.toHexString());
+  let voter = getOrCreateDelegate(event.params.voter.toHexString(), false);
+
+  if (voter == null) {
+    log.error("Delegate {} not found on VoteCast", [
+      event.params.voter.toHexString()
+    ]);
+  }
 
   vote.proposal = proposal.id;
-  vote.user = voter.id;
+  vote.voter = voter.id;
   vote.votes = event.params.votes;
   vote.support = event.params.support;
 
@@ -117,14 +134,92 @@ export function handleVoteCast(event: VoteCast): void {
 // - event: DelegateChanged(indexed address,indexed address,indexed address)
 //   handler: handleDelegateChanged
 
-export function handleDelegateChanged(event: DelegateChanged): void {}
+export function handleDelegateChanged(event: DelegateChanged): void {
+  let tokenHolder = getOrCreateTokenHolder(
+    event.params.delegator.toHexString()
+  );
+  let previousDelegate = getOrCreateDelegate(
+    event.params.fromDelegate.toHexString()
+  );
+  let newDelegate = getOrCreateDelegate(event.params.toDelegate.toHexString());
+
+  tokenHolder.delegate = newDelegate.id;
+  tokenHolder.save();
+
+  previousDelegate.tokenHoldersRepresentedAmount =
+    previousDelegate.tokenHoldersRepresentedAmount - 1;
+  newDelegate.tokenHoldersRepresentedAmount =
+    newDelegate.tokenHoldersRepresentedAmount + 1;
+  previousDelegate.save();
+  newDelegate.save();
+}
 
 // - event: DelegateVotesChanged(indexed address,uint256,uint256)
 //   handler: handleDelegateVotesChanged
 
-export function handleDelegateVotesChanged(event: DelegateVotesChanged): void {}
+export function handleDelegateVotesChanged(event: DelegateVotesChanged): void {
+  let governance = getGovernanceEntity();
+  let delegate = getOrCreateDelegate(event.params.delegate.toHexString());
+  let votesDifference = event.params.newBalance - event.params.previousBalance;
+
+  delegate.delegatedVotes = event.params.newBalance;
+  delegate.save();
+
+  if (
+    event.params.previousBalance == BIGINT_ZERO &&
+    event.params.newBalance > BIGINT_ZERO
+  ) {
+    governance.currentDelegates = governance.currentDelegates + BIGINT_ONE;
+  }
+  if (event.params.newBalance == BIGINT_ZERO) {
+    governance.currentDelegates = governance.currentDelegates - BIGINT_ONE;
+  }
+  governance.delegatedVotes = governance.delegatedVotes + votesDifference;
+  governance.save();
+}
 
 // - event: Transfer(indexed address,indexed address,uint256)
 //   handler: handleTransfer
 
-export function handleTransfer(event: Transfer): void {}
+export function handleTransfer(event: Transfer): void {
+  let fromHolder = getOrCreateTokenHolder(event.params.from.toHexString());
+  let toHolder = getOrCreateTokenHolder(event.params.to.toHexString());
+  let governance = getGovernanceEntity();
+
+  // fromHolder
+  if (event.params.from.toHexString() != ZERO_ADDRESS) {
+    let fromHolderPreviousBalance = fromHolder.tokenBalance;
+    fromHolder.tokenBalance = fromHolder.tokenBalance - event.params.amount;
+
+    if (fromHolder.tokenBalance < BIGINT_ZERO) {
+      log.error("Negative balance on holder {} with balance {}", [
+        fromHolder.id,
+        fromHolder.tokenBalance.toString()
+      ]);
+    }
+
+    if (fromHolder.tokenBalance == BIGINT_ZERO && fromHolderPreviousBalance > BIGINT_ZERO) {
+      governance.currentTokenHolders = governance.currentTokenHolders - BIGINT_ONE;
+      governance.save();
+    } else if(fromHolder.tokenBalance > BIGINT_ZERO && fromHolderPreviousBalance == BIGINT_ZERO) {
+      governance.currentTokenHolders = governance.currentTokenHolders + BIGINT_ONE;
+      governance.save();
+    }
+
+    fromHolder.save();
+  }
+
+  // toHolder
+  let toHolderPreviousBalance = toHolder.tokenBalance;
+  toHolder.tokenBalance = toHolder.tokenBalance + event.params.amount;
+
+  if (toHolder.tokenBalance == BIGINT_ZERO && toHolderPreviousBalance > BIGINT_ZERO) {
+    governance.currentTokenHolders = governance.currentTokenHolders - BIGINT_ONE;
+    governance.save();
+  } else if(toHolder.tokenBalance > BIGINT_ZERO && toHolderPreviousBalance == BIGINT_ZERO) {
+    governance.currentTokenHolders = governance.currentTokenHolders + BIGINT_ONE;
+    governance.save();
+  }
+
+  toHolder.save();
+}

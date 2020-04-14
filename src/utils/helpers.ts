@@ -1,5 +1,17 @@
-import { User, Proposal, Governance, Vote } from "../../generated/schema";
-import { Address, EthereumEvent, BigInt, Bytes, log } from "@graphprotocol/graph-ts";
+import {
+  TokenHolder,
+  Delegate,
+  Proposal,
+  Governance,
+  Vote
+} from "../../generated/schema";
+import {
+  Address,
+  EthereumEvent,
+  BigInt,
+  Bytes,
+  log
+} from "@graphprotocol/graph-ts";
 import { DEFAULT_DECIMALS, toDecimal } from "./decimals";
 import {
   ZERO_ADDRESS,
@@ -8,27 +20,55 @@ import {
   BIGDECIMAL_ZERO
 } from "./constants";
 
-export function getOrCreateUser(
+export function getOrCreateTokenHolder(
   id: String,
   createIfNotFound: boolean = true,
   save: boolean = true
-): User {
-  let user = User.load(id);
+): TokenHolder {
+  let tokenHolder = TokenHolder.load(id);
 
-  if (user == null && createIfNotFound) {
-    user = new User(id);
+  if (tokenHolder == null && createIfNotFound) {
+    tokenHolder = new TokenHolder(id);
+    tokenHolder.tokenBalance = BIGINT_ZERO;
 
-    let governance = getGovernanceEntity();
-
-    governance.users = governance.users + BIGINT_ONE;
-    governance.save();
+    if (id != ZERO_ADDRESS) {
+      let governance = getGovernanceEntity();
+      governance.totalTokenHolders = governance.totalTokenHolders + BIGINT_ONE;
+      governance.save();
+    }
 
     if (save) {
-      user.save();
+      tokenHolder.save();
     }
   }
 
-  return user as User;
+  return tokenHolder as TokenHolder;
+}
+
+export function getOrCreateDelegate(
+  id: String,
+  createIfNotFound: boolean = true,
+  save: boolean = true
+): Delegate {
+  let delegate = Delegate.load(id);
+
+  if (delegate == null && createIfNotFound) {
+    delegate = new Delegate(id);
+    delegate.delegatedVotes = BIGINT_ZERO;
+    delegate.tokenHoldersRepresentedAmount = 0;
+
+    if (id != ZERO_ADDRESS) {
+      let governance = getGovernanceEntity();
+      governance.totalDelegates = governance.totalDelegates + BIGINT_ONE;
+      governance.save();
+    }
+
+    if (save) {
+      delegate.save();
+    }
+  }
+
+  return delegate as Delegate;
 }
 
 export function getOrCreateVote(
@@ -78,16 +118,13 @@ export function getGovernanceEntity(): Governance {
   if (governance == null) {
     governance = new Governance("GOVERNANCE");
     governance.proposals = BIGINT_ZERO;
-    governance.users = BIGINT_ZERO;
+    governance.totalTokenHolders = BIGINT_ZERO;
+    governance.currentTokenHolders = BIGINT_ZERO;
+    governance.currentDelegates = BIGINT_ZERO;
+    governance.totalDelegates = BIGINT_ZERO;
+    governance.delegatedVotes = BIGINT_ZERO;
     governance.proposalsQueued = BIGINT_ZERO;
   }
 
   return governance as Governance;
-}
-
-export function getEventId(event: EthereumEvent): String {
-  return event.transaction.hash
-    .toHexString()
-    .concat("-")
-    .concat(event.logIndex.toString());
 }

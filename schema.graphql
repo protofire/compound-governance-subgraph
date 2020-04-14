@@ -6,14 +6,33 @@ enum ProposalStatus {
   EXECUTED
 }
 
-type User @entity {
-  "A user is any address that uses the protocol, id is the blockchain address of said user"
+type TokenHolder @entity {
+  "A TokenHolder is any address that holds any amount of Compound Tokens, the id used is the blockchain address."
   id: ID!
 
-  "Votes that a user has made in different proposals"
-  votes: [Vote!]! @derivedFrom(field: "user")
+  "Delegate address of the token holder which will participate in votings. Delegates don't need to hold any tokens and can even be the token holder itself."
+  delegate: Delegate
 
-  "Proposals that the user has created"
+  "Amount of Compound Tokens hold by this address"
+  tokenBalance: BigInt!
+}
+
+type Delegate @entity {
+  "A Delegate is any address that has been delegated with voting tokens by a token holder, id is the blockchain address of said delegate"
+  id: ID!
+
+  "Amount of votes delegated to this delegate to be used on proposal votings"
+  delegatedVotes: BigInt!
+
+  tokenHoldersRepresentedAmount: Int!
+
+  "Token holders that this delegate represents"
+  tokenHoldersRepresented: [TokenHolder!]! @derivedFrom(field: "delegate")
+
+  "Votes that a delegate has made in different proposals"
+  votes: [Vote!]! @derivedFrom(field: "voter")
+
+  "Proposals that the delegate has created"
   proposals: [Proposal!]! @derivedFrom(field: "proposer")
 }
 
@@ -21,8 +40,8 @@ type Proposal @entity {
   "Internal proposal ID, in this implementation it seems to be a autoincremental id"
   id: ID!
 
-  "User that proposed the change"
-  proposer: User!
+  "Delegate that proposed the change"
+  proposer: Delegate!
 
   "Targets data for the change"
   targets: [Bytes!]
@@ -56,7 +75,7 @@ type Proposal @entity {
 }
 
 type Vote @entity {
-  "User ID + Proposal ID"
+  "Delegate ID + Proposal ID"
   id: ID!
 
   "Whether the vote is in favour or against the proposal"
@@ -65,8 +84,8 @@ type Vote @entity {
   "Amount of votes in favour or against"
   votes: BigInt!
 
-  "User that emitted the vote"
-  user: User!
+  "Delegate that emitted the vote"
+  voter: Delegate!
 
   "Proposal that is being voted on"
   proposal: Proposal!
@@ -79,8 +98,20 @@ type Governance @entity {
   "Number of proposals created"
   proposals: BigInt!
 
-  "Total number of users participating on the governance"
-  users: BigInt!
+  "Total number of token holders currently"
+  currentTokenHolders: BigInt!
+
+  "Total number of delegates participating on the governance currently"
+  currentDelegates: BigInt!
+
+  "Total number of token holders"
+  totalTokenHolders: BigInt!
+
+  "Total number of delegates that held delegated votes"
+  totalDelegates: BigInt!
+
+  "Total number of votes delegated"
+  delegatedVotes: BigInt!
 
   "Number of proposals currently queued for execution"
   proposalsQueued: BigInt!
