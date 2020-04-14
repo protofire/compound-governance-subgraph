@@ -10,34 +10,48 @@ type User @entity {
   "A user is any address that uses the protocol, id is the blockchain address of said user"
   id: ID!
 
+  "Votes that a user has made in different proposals"
   votes: [Vote!]! @derivedFrom(field: "user")
 
+  "Proposals that the user has created"
   proposals: [Proposal!]! @derivedFrom(field: "proposer")
 }
 
 type Proposal @entity {
+  "Internal proposal ID, in this implementation it seems to be a autoincremental id"
   id: ID!
 
+  "User that proposed the change"
   proposer: User!
 
+  "Targets data for the change"
   targets: [Bytes!]
 
+  "Values data for the change"
   values: [BigInt!]
 
+  "Signature data for the change"
   signatures: [String!]
 
+  "Call data for the change"
   calldatas: [Bytes!]
 
+  "Block number from where the voting starts"
   startBlock: BigInt!
 
+  "Block number from where the voting ends"
   endBlock: BigInt!
 
+  "String description of the change"
   description: String!
 
+  "Status of the proposal"
   status: ProposalStatus!
 
+  "Once the proposal is queued for execution it will have an ETA of the execution"
   executionETA: BigInt
 
+  "Votes associated to this proposal"
   votes: [Vote!]! @derivedFrom(field: "proposal")
 }
 
@@ -45,12 +59,16 @@ type Vote @entity {
   "User ID + Proposal ID"
   id: ID!
 
+  "Whether the vote is in favour or against the proposal"
   support: Boolean!
 
+  "Amount of votes in favour or against"
   votes: BigInt!
 
+  "User that emitted the vote"
   user: User!
 
+  "Proposal that is being voted on"
   proposal: Proposal!
 }
 
@@ -58,9 +76,12 @@ type Governance @entity {
   "Unique entity used to keep track of common aggregated data"
   id: ID!
 
+  "Number of proposals created"
   proposals: BigInt!
 
+  "Total number of users participating on the governance"
   users: BigInt!
 
+  "Number of proposals currently queued for execution"
   proposalsQueued: BigInt!
 }
