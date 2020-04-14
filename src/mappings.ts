@@ -7,6 +7,11 @@ import {
   VoteCast
 } from "../generated/GovernorAlpha/GovernorAlpha";
 import {
+  DelegateChanged,
+  DelegateVotesChanged,
+  Transfer
+} from "../generated/CompoundToken/CompoundToken";
+import {
   getOrCreateUser,
   getOrCreateProposal,
   getOrCreateVote,
@@ -108,3 +113,18 @@ export function handleVoteCast(event: VoteCast): void {
     proposal.save();
   }
 }
+
+// - event: DelegateChanged(indexed address,indexed address,indexed address)
+//   handler: handleDelegateChanged
+
+export function handleDelegateChanged(event: DelegateChanged): void {}
+
+// - event: DelegateVotesChanged(indexed address,uint256,uint256)
+//   handler: handleDelegateVotesChanged
+
+export function handleDelegateVotesChanged(event: DelegateVotesChanged): void {}
+
+// - event: Transfer(indexed address,indexed address,uint256)
+//   handler: handleTransfer
+
+export function handleTransfer(event: Transfer): void {}

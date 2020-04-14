@@ -18,6 +18,9 @@ dataSources:
       file: ./src/mappings.ts
       entities:
         - User
+        - Proposal
+        - Vote
+        - Governance
       abis:
         - name: GovernorAlpha
           file: ./abis/GovernorAlpha.json
@@ -32,3 +35,27 @@ dataSources:
           handler: handleProposalExecuted
         - event: VoteCast(address,uint256,bool,uint256)
           handler: handleVoteCast
+  - kind: ethereum/contract
+    name: CompoundToken
+    network: mainnet
+    source:
+      address: "0xc00e94cb662c3520282e6f5717214004a7f26888"
+      abi: CompoundToken
+      startBlock: 7137983
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      file: ./src/mappings.ts
+      entities:
+        - User
+      abis:
+        - name: CompoundToken
+          file: ./abis/CompoundToken.json
+      eventHandlers:
+        - event: DelegateChanged(indexed address,indexed address,indexed address)
+          handler: handleDelegateChanged
+        - event: DelegateVotesChanged(indexed address,uint256,uint256)
+          handler: handleDelegateVotesChanged
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
