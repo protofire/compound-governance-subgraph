@@ -29,7 +29,8 @@ export function getOrCreateTokenHolder(
 
   if (tokenHolder == null && createIfNotFound) {
     tokenHolder = new TokenHolder(id);
-    tokenHolder.tokenBalance = BIGINT_ZERO;
+    tokenHolder.tokenBalanceRaw = BIGINT_ZERO;
+    tokenHolder.tokenBalance = BIGDECIMAL_ZERO;
 
     if (id != ZERO_ADDRESS) {
       let governance = getGovernanceEntity();
@@ -54,7 +55,8 @@ export function getOrCreateDelegate(
 
   if (delegate == null && createIfNotFound) {
     delegate = new Delegate(id);
-    delegate.delegatedVotes = BIGINT_ZERO;
+    delegate.delegatedVotesRaw = BIGINT_ZERO;
+    delegate.delegatedVotes = BIGDECIMAL_ZERO;
     delegate.tokenHoldersRepresentedAmount = 0;
 
     if (id != ZERO_ADDRESS) {
@@ -122,7 +124,8 @@ export function getGovernanceEntity(): Governance {
     governance.currentTokenHolders = BIGINT_ZERO;
     governance.currentDelegates = BIGINT_ZERO;
     governance.totalDelegates = BIGINT_ZERO;
-    governance.delegatedVotes = BIGINT_ZERO;
+    governance.delegatedVotesRaw = BIGINT_ZERO;
+    governance.delegatedVotes = BIGDECIMAL_ZERO;
     governance.proposalsQueued = BIGINT_ZERO;
   }
 

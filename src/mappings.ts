@@ -120,7 +120,8 @@ export function handleVoteCast(event: VoteCast): void {
 
   vote.proposal = proposal.id;
   vote.voter = voter.id;
-  vote.votes = event.params.votes;
+  vote.votesRaw = event.params.votes;
+  vote.votes = toDecimal(event.params.votes);
   vote.support = event.params.support;
 
   vote.save();
@@ -162,7 +163,8 @@ export function handleDelegateVotesChanged(event: DelegateVotesChanged): void {
   let delegate = getOrCreateDelegate(event.params.delegate.toHexString());
   let votesDifference = event.params.newBalance - event.params.previousBalance;
 
-  delegate.delegatedVotes = event.params.newBalance;
+  delegate.delegatedVotesRaw = event.params.newBalance;
+  delegate.delegatedVotes = toDecimal(event.params.newBalance);
   delegate.save();
 
   if (
@@ -174,7 +176,8 @@ export function handleDelegateVotesChanged(event: DelegateVotesChanged): void {
   if (event.params.newBalance == BIGINT_ZERO) {
     governance.currentDelegates = governance.currentDelegates - BIGINT_ONE;
   }
-  governance.delegatedVotes = governance.delegatedVotes + votesDifference;
+  governance.delegatedVotesRaw = governance.delegatedVotesRaw + votesDifference;
+  governance.delegatedVotes = toDecimal(governance.delegatedVotesRaw);
   governance.save();
 }
 
@@ -188,21 +191,31 @@ export function handleTransfer(event: Transfer): void {
 
   // fromHolder
   if (event.params.from.toHexString() != ZERO_ADDRESS) {
-    let fromHolderPreviousBalance = fromHolder.tokenBalance;
-    fromHolder.tokenBalance = fromHolder.tokenBalance - event.params.amount;
+    let fromHolderPreviousBalance = fromHolder.tokenBalanceRaw;
+    fromHolder.tokenBalanceRaw =
+      fromHolder.tokenBalanceRaw - event.params.amount;
+    fromHolder.tokenBalance = toDecimal(fromHolder.tokenBalanceRaw);
 
-    if (fromHolder.tokenBalance < BIGINT_ZERO) {
+    if (fromHolder.tokenBalanceRaw < BIGINT_ZERO) {
       log.error("Negative balance on holder {} with balance {}", [
         fromHolder.id,
-        fromHolder.tokenBalance.toString()
+        fromHolder.tokenBalanceRaw.toString()
       ]);
     }
 
-    if (fromHolder.tokenBalance == BIGINT_ZERO && fromHolderPreviousBalance > BIGINT_ZERO) {
-      governance.currentTokenHolders = governance.currentTokenHolders - BIGINT_ONE;
+    if (
+      fromHolder.tokenBalanceRaw == BIGINT_ZERO &&
+      fromHolderPreviousBalance > BIGINT_ZERO
+    ) {
+      governance.currentTokenHolders =
+        governance.currentTokenHolders - BIGINT_ONE;
       governance.save();
-    } else if(fromHolder.tokenBalance > BIGINT_ZERO && fromHolderPreviousBalance == BIGINT_ZERO) {
-      governance.currentTokenHolders = governance.currentTokenHolders + BIGINT_ONE;
+    } else if (
+      fromHolder.tokenBalanceRaw > BIGINT_ZERO &&
+      fromHolderPreviousBalance == BIGINT_ZERO
+    ) {
+      governance.currentTokenHolders =
+        governance.currentTokenHolders + BIGINT_ONE;
       governance.save();
     }
 
@@ -210,14 +223,23 @@ export function handleTransfer(event: Transfer): void {
   }
 
   // toHolder
-  let toHolderPreviousBalance = toHolder.tokenBalance;
-  toHolder.tokenBalance = toHolder.tokenBalance + event.params.amount;
+  let toHolderPreviousBalance = toHolder.tokenBalanceRaw;
+  toHolder.tokenBalanceRaw = toHolder.tokenBalanceRaw + event.params.amount;
+  toHolder.tokenBalance = toDecimal(toHolder.tokenBalanceRaw);
 
-  if (toHolder.tokenBalance == BIGINT_ZERO && toHolderPreviousBalance > BIGINT_ZERO) {
-    governance.currentTokenHolders = governance.currentTokenHolders - BIGINT_ONE;
+  if (
+    toHolder.tokenBalanceRaw == BIGINT_ZERO &&
+    toHolderPreviousBalance > BIGINT_ZERO
+  ) {
+    governance.currentTokenHolders =
+      governance.currentTokenHolders - BIGINT_ONE;
     governance.save();
-  } else if(toHolder.tokenBalance > BIGINT_ZERO && toHolderPreviousBalance == BIGINT_ZERO) {
-    governance.currentTokenHolders = governance.currentTokenHolders + BIGINT_ONE;
+  } else if (
+    toHolder.tokenBalanceRaw > BIGINT_ZERO &&
+    toHolderPreviousBalance == BIGINT_ZERO
+  ) {
+    governance.currentTokenHolders =
+      governance.currentTokenHolders + BIGINT_ONE;
     governance.save();
   }
 
