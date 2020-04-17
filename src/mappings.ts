@@ -40,11 +40,17 @@ export function handleProposalCreated(event: ProposalCreated): void {
     false
   );
 
+  // checking if the proposer was a delegate already accounted for, if not we should log an error
+  // since it shouldn't be possible for a delegate to propose anything without first being "created"
   if (proposer == null) {
-    log.error("Delegate {} not found on ProposalCreated", [
-      event.params.proposer.toHexString()
+    log.error("Delegate {} not found on ProposalCreated. tx_hash: {}", [
+      event.params.proposer.toHexString(),
+      event.transaction.hash.toHexString()
     ]);
   }
+
+  // Creating it anyway since we will want to account for this event data, even though it should've never happened
+  proposer = getOrCreateDelegate(event.params.proposer.toHexString());
 
   proposal.proposer = proposer.id;
   proposal.targets = event.params.targets as Bytes[];
@@ -112,11 +118,17 @@ export function handleVoteCast(event: VoteCast): void {
   let vote = getOrCreateVote(voteId);
   let voter = getOrCreateDelegate(event.params.voter.toHexString(), false);
 
+  // checking if the voter was a delegate already accounted for, if not we should log an error
+  // since it shouldn't be possible for a delegate to vote without first being "created"
   if (voter == null) {
-    log.error("Delegate {} not found on VoteCast", [
-      event.params.voter.toHexString()
+    log.error("Delegate {} not found on VoteCast. tx_hash: {}", [
+      event.params.voter.toHexString(),
+      event.transaction.hash.toHexString()
     ]);
   }
+
+  // Creating it anyway since we will want to account for this event data, even though it should've never happened
+  voter = getOrCreateDelegate(event.params.voter.toHexString());
 
   vote.proposal = proposal.id;
   vote.voter = voter.id;
