@@ -238,6 +238,8 @@ export function handleTransfer(event: Transfer): void {
   let toHolderPreviousBalance = toHolder.tokenBalanceRaw;
   toHolder.tokenBalanceRaw = toHolder.tokenBalanceRaw + event.params.amount;
   toHolder.tokenBalance = toDecimal(toHolder.tokenBalanceRaw);
+  toHolder.totalTokensHeldRaw = toHolder.totalTokensHeldRaw + event.params.amount;
+  toHolder.totalTokensHeld = toDecimal(toHolder.totalTokensHeldRaw);
 
   if (
     toHolder.tokenBalanceRaw == BIGINT_ZERO &&

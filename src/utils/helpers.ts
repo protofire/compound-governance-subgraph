@@ -31,6 +31,8 @@ export function getOrCreateTokenHolder(
     tokenHolder = new TokenHolder(id);
     tokenHolder.tokenBalanceRaw = BIGINT_ZERO;
     tokenHolder.tokenBalance = BIGDECIMAL_ZERO;
+    tokenHolder.totalTokensHeldRaw = BIGINT_ZERO;
+    tokenHolder.totalTokensHeld = BIGDECIMAL_ZERO;
 
     if (id != ZERO_ADDRESS) {
       let governance = getGovernanceEntity();

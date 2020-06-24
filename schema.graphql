@@ -13,11 +13,17 @@ type TokenHolder @entity {
   "Delegate address of the token holder which will participate in votings. Delegates don't need to hold any tokens and can even be the token holder itself."
   delegate: Delegate
 
-  "Amount of Compound Tokens held by this address expressed in the smallest unit of the CompoundToken"
+  "Compound Token balance of this address expressed in the smallest unit of the CompoundToken"
   tokenBalanceRaw: BigInt!
 
-  "Amount of Compound Tokens held by this address expressed as a BigDecimal normalized value for the Compound Token"
+  "Compound Token balance of this address expressed as a BigDecimal normalized value for the Compound Token"
   tokenBalance: BigDecimal!
+
+  "Total amount of Compound Token ever held by this address expressed in the smallest unit of the CompoundToken"
+  totalTokensHeldRaw: BigInt!
+
+  "Total amount of Compound Token ever held by this address expressed as a BigDecimal normalized value for the Compound Token"
+  totalTokensHeld: BigDecimal!
 }
 
 type Delegate @entity {
