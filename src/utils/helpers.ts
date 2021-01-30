@@ -7,7 +7,6 @@ import {
 } from "../../generated/schema";
 import {
   Address,
-  EthereumEvent,
   BigInt,
   Bytes,
   log
