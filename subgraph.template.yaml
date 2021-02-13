@@ -1,16 +1,16 @@
 specVersion: 0.0.2
-description: Compound governance subgraph
+description: Radicle governance subgraph
 repository: https://github.com/protofire/compound-governance-subgraph
 schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
     name: GovernorAlpha
-    network: mainnet
+    network: {{ network }}
     source:
-      address: "0xc0da01a04c3f3e0be433606045bb7017a7323e38"
+      address: "{{ governorAddress }}"
       abi: GovernorAlpha
-      startBlock: 9601459
+      startBlock: {{ startBlock }} 
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3
@@ -37,12 +37,12 @@ dataSources:
         - event: VoteCast(address,uint256,bool,uint256)
           handler: handleVoteCast
   - kind: ethereum/contract
-    name: CompoundToken
-    network: mainnet
+    name: RadicleToken
+    network: {{ network }}
     source:
-      address: "0xc00e94cb662c3520282e6f5717214004a7f26888"
-      abi: CompoundToken
-      startBlock: 9601359
+      address: "{{ tokenAddress }}"
+      abi: RadicleToken
+      startBlock: {{ startBlock }}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3
@@ -52,8 +52,8 @@ dataSources:
         - Delegate
         - TokenHolder
       abis:
-        - name: CompoundToken
-          file: ./abis/CompoundToken.json
+        - name: RadicleToken
+          file: ./abis/RadicleToken.json
       eventHandlers:
         - event: DelegateChanged(indexed address,indexed address,indexed address)
           handler: handleDelegateChanged

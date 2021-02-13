@@ -1,0 +1,6 @@
+{
+  "network": "ropsten",
+  "startBlock": 9655941,
+  "governorAddress": "0x559d6F96945072fC567f7e03167364eBf5C76A52",
+  "tokenAddress": "0x221577dB84e6eA22ed18dDCC14298EA45d894644"
+}
