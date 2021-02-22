@@ -4,19 +4,19 @@ import {
   ProposalCanceled,
   ProposalQueued,
   ProposalExecuted,
-  VoteCast
+  VoteCast,
 } from "../generated/GovernorAlpha/GovernorAlpha";
 import {
   DelegateChanged,
   DelegateVotesChanged,
-  Transfer
+  Transfer,
 } from "../generated/CompoundToken/CompoundToken";
 import {
   getOrCreateTokenHolder,
   getOrCreateDelegate,
   getOrCreateProposal,
   getOrCreateVote,
-  getGovernanceEntity
+  getGovernanceEntity,
 } from "./utils/helpers";
 import {
   ZERO_ADDRESS,
@@ -26,7 +26,9 @@ import {
   STATUS_QUEUED,
   STATUS_PENDING,
   STATUS_EXECUTED,
-  STATUS_CANCELLED
+  STATUS_CANCELLED,
+  BIGDECIMAL_ZERO,
+  BIGDECIMAL_ONE,
 } from "./utils/constants";
 import { toDecimal } from "./utils/decimals";
 
@@ -45,7 +47,7 @@ export function handleProposalCreated(event: ProposalCreated): void {
   if (proposer == null) {
     log.error("Delegate {} not found on ProposalCreated. tx_hash: {}", [
       event.params.proposer.toHexString(),
-      event.transaction.hash.toHexString()
+      event.transaction.hash.toHexString(),
     ]);
   }
 
@@ -62,6 +64,8 @@ export function handleProposalCreated(event: ProposalCreated): void {
   proposal.description = event.params.description;
   proposal.status =
     event.block.number >= proposal.startBlock ? STATUS_ACTIVE : STATUS_PENDING;
+  proposal.forCount = BIGDECIMAL_ZERO;
+  proposal.againstCount = BIGDECIMAL_ZERO;
 
   proposal.save();
 }
@@ -71,7 +75,6 @@ export function handleProposalCreated(event: ProposalCreated): void {
 
 export function handleProposalCanceled(event: ProposalCanceled): void {
   let proposal = getOrCreateProposal(event.params.id.toString());
-
   proposal.status = STATUS_CANCELLED;
   proposal.save();
 }
@@ -87,7 +90,7 @@ export function handleProposalQueued(event: ProposalQueued): void {
   proposal.executionETA = event.params.eta;
   proposal.save();
 
-  governance.proposalsQueued = governance.proposalsQueued + BIGINT_ONE;
+  governance.proposalsQueued = governance.proposalsQueued.plus(BIGINT_ONE);
   governance.save();
 }
 
@@ -102,7 +105,7 @@ export function handleProposalExecuted(event: ProposalExecuted): void {
   proposal.executionETA = null;
   proposal.save();
 
-  governance.proposalsQueued = governance.proposalsQueued - BIGINT_ONE;
+  governance.proposalsQueued = governance.proposalsQueued.minus(BIGINT_ONE);
   governance.save();
 }
 
@@ -123,7 +126,7 @@ export function handleVoteCast(event: VoteCast): void {
   if (voter == null) {
     log.error("Delegate {} not found on VoteCast. tx_hash: {}", [
       event.params.voter.toHexString(),
-      event.transaction.hash.toHexString()
+      event.transaction.hash.toHexString(),
     ]);
   }
 
@@ -136,12 +139,18 @@ export function handleVoteCast(event: VoteCast): void {
   vote.votes = toDecimal(event.params.votes);
   vote.support = event.params.support;
 
-  vote.save();
+  if (event.params.support) {
+    proposal.forCount = proposal.forCount.plus(BIGDECIMAL_ONE);
+  } else {
+    proposal.againstCount = proposal.againstCount.plus(BIGDECIMAL_ONE);
+  }
 
   if (proposal.status == STATUS_PENDING) {
     proposal.status = STATUS_ACTIVE;
-    proposal.save();
   }
+
+  vote.save();
+  proposal.save();
 }
 
 // - event: DelegateChanged(indexed address,indexed address,indexed address)
@@ -211,7 +220,7 @@ export function handleTransfer(event: Transfer): void {
     if (fromHolder.tokenBalanceRaw < BIGINT_ZERO) {
       log.error("Negative balance on holder {} with balance {}", [
         fromHolder.id,
-        fromHolder.tokenBalanceRaw.toString()
+        fromHolder.tokenBalanceRaw.toString(),
       ]);
     }
 
@@ -238,7 +247,8 @@ export function handleTransfer(event: Transfer): void {
   let toHolderPreviousBalance = toHolder.tokenBalanceRaw;
   toHolder.tokenBalanceRaw = toHolder.tokenBalanceRaw + event.params.amount;
   toHolder.tokenBalance = toDecimal(toHolder.tokenBalanceRaw);
-  toHolder.totalTokensHeldRaw = toHolder.totalTokensHeldRaw + event.params.amount;
+  toHolder.totalTokensHeldRaw =
+    toHolder.totalTokensHeldRaw + event.params.amount;
   toHolder.totalTokensHeld = toDecimal(toHolder.totalTokensHeldRaw);
 
   if (

@@ -1,5 +1,5 @@
 specVersion: 0.0.2
-description: Compound governance subgraph
+description: Uniswap governance subgraph
 repository: https://github.com/protofire/compound-governance-subgraph
 schema:
   file: ./schema.graphql
@@ -8,9 +8,9 @@ dataSources:
     name: GovernorAlpha
     network: mainnet
     source:
-      address: "0xc0da01a04c3f3e0be433606045bb7017a7323e38"
+      address: "0x5e4be8Bc9637f0EAA1A755019e06A68ce081D58F"
       abi: GovernorAlpha
-      startBlock: 9601459
+      startBlock: 10861677
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3
@@ -40,9 +40,9 @@ dataSources:
     name: CompoundToken
     network: mainnet
     source:
-      address: "0xc00e94cb662c3520282e6f5717214004a7f26888"
+      address: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984"
       abi: CompoundToken
-      startBlock: 9601359
+      startBlock: 10861673
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3
