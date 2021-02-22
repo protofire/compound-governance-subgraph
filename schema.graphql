@@ -84,6 +84,12 @@ type Proposal @entity {
 
   "Votes associated to this proposal"
   votes: [Vote!]! @derivedFrom(field: "proposal")
+
+  # count of votes for proposal
+  forCount: BigDecimal!
+
+  # count of votes against proposal
+  againstCount: BigDecimal!
 }
 
 type Vote @entity {
