@@ -6,11 +6,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: GovernorAlpha
-    network: mainnet
+    network: bsc
     source:
-      address: "0xc0da01a04c3f3e0be433606045bb7017a7323e38"
+      address: "0x406f48f47d25e9caa29f17e7cfbd1dc6878f078f"
       abi: GovernorAlpha
-      startBlock: 9601459
+      startBlock: 2474351
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3
@@ -38,11 +38,11 @@ dataSources:
           handler: handleVoteCast
   - kind: ethereum/contract
     name: VenusToken
-    network: mainnet
+    network: bsc
     source:
-      address: "0xc00e94cb662c3520282e6f5717214004a7f26888"
+      address: "0xcf6bb5389c92bdda8a3747ddb454cb7a64626c63"
       abi: VenusToken
-      startBlock: 9601359
+      startBlock: 858561
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3
