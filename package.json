@@ -1,15 +1,15 @@
 {
-  "name": "compound",
+  "name": "venus-governance-subgraph",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ protofire/compound-governance",
-    "deploy-dev": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ protofire/compound-governance",
-    "create-local": "graph create --node http://localhost:8020/ protofire/compound-governance",
-    "remove-local": "graph remove --node http://localhost:8020/ protofire/compound-governance",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 protofire/compound-governance"
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ venusprotocol/venus-governance-subgraph",
+    "deploy-dev": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ venusprotocol/venus-governance-subgraph",
+    "create-local": "graph create --node http://localhost:8020/ venusprotocol/venus-governance-subgraph",
+    "remove-local": "graph remove --node http://localhost:8020/ venusprotocol/venus-governance-subgraph",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 venusprotocol/venus-governance-subgraph"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.17.1",
