@@ -7,22 +7,22 @@ enum ProposalStatus {
 }
 
 type TokenHolder @entity {
-  "A TokenHolder is any address that holds any amount of Compound Tokens, the id used is the blockchain address."
+  "A TokenHolder is any address that holds any amount of Venus Tokens, the id used is the blockchain address."
   id: ID!
 
   "Delegate address of the token holder which will participate in votings. Delegates don't need to hold any tokens and can even be the token holder itself."
   delegate: Delegate
 
-  "Compound Token balance of this address expressed in the smallest unit of the CompoundToken"
+  "Venus Token balance of this address expressed in the smallest unit of the VenusToken"
   tokenBalanceRaw: BigInt!
 
-  "Compound Token balance of this address expressed as a BigDecimal normalized value for the Compound Token"
+  "Venus Token balance of this address expressed as a BigDecimal normalized value for the Venus Token"
   tokenBalance: BigDecimal!
 
-  "Total amount of Compound Token ever held by this address expressed in the smallest unit of the CompoundToken"
+  "Total amount of Venus Token ever held by this address expressed in the smallest unit of the VenusToken"
   totalTokensHeldRaw: BigInt!
 
-  "Total amount of Compound Token ever held by this address expressed as a BigDecimal normalized value for the Compound Token"
+  "Total amount of Venus Token ever held by this address expressed as a BigDecimal normalized value for the Venus Token"
   totalTokensHeld: BigDecimal!
 }
 
@@ -30,10 +30,10 @@ type Delegate @entity {
   "A Delegate is any address that has been delegated with voting tokens by a token holder, id is the blockchain address of said delegate"
   id: ID!
 
-  "Amount of votes delegated to this delegate to be used on proposal votings expressed in the smallest unit of the CompoundToken"
+  "Amount of votes delegated to this delegate to be used on proposal votings expressed in the smallest unit of the VenusToken"
   delegatedVotesRaw: BigInt!
 
-  "Amount of votes delegated to this delegate to be used on proposal votings expressed as a BigDecimal normalized value for the Compound Token"
+  "Amount of votes delegated to this delegate to be used on proposal votings expressed as a BigDecimal normalized value for the Venus Token"
   delegatedVotes: BigDecimal!
 
   tokenHoldersRepresentedAmount: Int!
@@ -93,10 +93,10 @@ type Vote @entity {
   "Whether the vote is in favour or against the proposal"
   support: Boolean!
 
-  "Amount of votes in favour or against expressed in the smallest unit of the CompoundToken"
+  "Amount of votes in favour or against expressed in the smallest unit of the VenusToken"
   votesRaw: BigInt!
 
-  "Amount of votes in favour or against expressed as a BigDecimal normalized value for the Compound Token"
+  "Amount of votes in favour or against expressed as a BigDecimal normalized value for the Venus Token"
   votes: BigDecimal!
 
   "Delegate that emitted the vote"
@@ -125,10 +125,10 @@ type Governance @entity {
   "Total number of delegates that held delegated votes"
   totalDelegates: BigInt!
 
-  "Total number of votes delegated expressed in the smallest unit of the Compound Token"
+  "Total number of votes delegated expressed in the smallest unit of the Venus Token"
   delegatedVotesRaw: BigInt!
 
-  "Total number of votes delegated expressed as a BigDecimal normalized value for the Compound Token"
+  "Total number of votes delegated expressed as a BigDecimal normalized value for the Venus Token"
   delegatedVotes: BigDecimal!
 
   "Number of proposals currently queued for execution"
